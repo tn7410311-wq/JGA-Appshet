@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'CineBook - Đặt vé xem phim nhanh chóng')</title>
+    <title>@yield('title', 'Appshet - quản lý lộ trình KTV JGA')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -30,186 +30,57 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Favicon: use SVG generated from navbar icon for crisp result -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <!-- fallback -->
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
 </head>
 
-<body class="font-sans antialiased bg-slate-950 text-gray-100 min-h-screen">
-
-    <nav class="bg-slate-900/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50 w-full">
-        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex h-20 items-center justify-between gap-3 sm:h-24">
-                <!-- Left Side: Logo & Desktop Menu -->
-                <div class="flex min-w-0 items-center gap-8">
-                    <a href="/" class="flex items-center gap-2 group shrink-0">
-                        <div class="bg-red-600 p-2 rounded-lg shadow-lg shadow-red-600/20 group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-film text-white text-xl"></i>
-                        </div>
-                        <span class="text-xl font-black tracking-tighter text-white sm:text-2xl">Cine<span class="text-red-600">Book</span></span>
-                    </a>
-
-                    <!-- Desktop Menu: Chỉ hiện trên màn hình lớn (xl) để tránh chật chội -->
-                    <div class="hidden xl:flex items-center space-x-8">
-                        <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.home') }}</a>
-                        <a href="{{ route('trips.index') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.movies_schedule') }}</a>
-                        <a href="{{ route('routes.index') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.cinemas') }}</a>
-                        <a href="/feedback" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.feedback') }}</a>
-                    </div>
-                </div>
-
-                <!-- Right Side: Search & Auth & Hamburger -->
-                <div class="flex shrink-0 items-center gap-2 md:gap-4 lg:gap-6">
-                    <!-- Search Bar: Ẩn trên mobile, hiện từ md -->
-                    <div class="hidden md:block relative group">
-                        <form action="{{ route('trips.index') }}" method="GET" class="relative">
-                            <input type="text" name="q" id="globalSearchInput" placeholder="{{ __('ui.search_placeholder') }}" 
-                                class="h-11 bg-white/5 border border-white/10 rounded-full pl-5 pr-12 text-sm text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 w-44 lg:w-64 transition-all placeholder:text-gray-500 group-hover:bg-white/10">
-                            <button type="submit" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-full text-gray-500 transition-colors hover:text-white" aria-label="Tìm kiếm">
-                                <i class="fa-solid fa-search"></i>
-                            </button>
-                            <!-- Search Suggestions -->
-                            <div id="searchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl hidden z-50 overflow-hidden"></div>
-                        </form>
-                    </div>
-
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <div class="hidden sm:flex items-center rounded-full border border-white/10 bg-white/5 p-1 text-xs font-bold">
-                            <a href="{{ route('language.switch', 'vi') }}" class="rounded-full px-2.5 py-1 {{ app()->getLocale() === 'vi' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white' }}">VI</a>
-                            <a href="{{ route('language.switch', 'en') }}" class="rounded-full px-2.5 py-1 {{ app()->getLocale() === 'en' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white' }}">EN</a>
-                        </div>
-                        @guest
-                            <div class="flex items-center gap-1 sm:gap-3">
-                                <a href="/login" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-300 transition hover:text-white sm:w-auto sm:border-0 sm:bg-transparent sm:px-3 sm:text-sm sm:font-bold" aria-label="{{ __('ui.login') }}">
-                                    <i class="fa-solid fa-right-to-bracket sm:hidden"></i>
-                                    <span class="hidden sm:inline">{{ __('ui.login') }}</span>
-                                </a>
-                                <a href="/register" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-lg shadow-red-600/20 transition-all hover:bg-red-700 active:scale-95 sm:w-auto sm:px-6 sm:text-sm sm:font-black" aria-label="{{ __('ui.register') }}">
-                                    <i class="fa-solid fa-user-plus sm:hidden"></i>
-                                    <span class="hidden sm:inline">{{ __('ui.register') }}</span>
-                                </a>
-                            </div>
-                        @else
-                            <!-- Notifications & User Dropdown (Original code kept but refined) -->
-                            <div class="flex items-center gap-4 sm:gap-5">
-                                <!-- Notification -->
-                                <div class="relative">
-                                    <button id="notificationButton" type="button" class="relative text-gray-400 hover:text-white transition-colors">
-                                        <i class="fa-regular fa-bell text-[1.1rem]"></i>
-                                        <span id="notificationBadge" class="hidden absolute -top-1 -right-1 min-w-[1rem] rounded-full bg-red-500 px-1.5 text-[0.65rem] font-semibold text-white leading-none"></span>
-                                    </button>
-                                    <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 max-h-[420px] overflow-hidden rounded-3xl border border-gray-800 bg-gray-900 shadow-2xl z-50">
-                                        <div class="flex items-center justify-between border-b border-gray-800 px-4 py-3 text-sm text-gray-300">
-                                            <div class="font-semibold text-white">{{ __('ui.notifications') }}</div>
-                                            <button id="notificationMarkAllRead" class="text-xs text-gray-400 hover:text-white">{{ __('ui.mark_all_read') }}</button>
-                                        </div>
-                                        <div id="notificationList" class="max-h-[340px] overflow-y-auto"></div>
-                                        <div id="notificationEmpty" class="hidden px-4 py-6 text-center text-sm text-gray-500">{{ __('ui.no_new_notifications') }}</div>
-                                    </div>
-                                </div>
-
-                                <!-- User Dropdown -->
-                                <div class="relative group h-full flex items-center">
-                                    <button class="flex items-center gap-2.5 text-sm font-medium text-gray-200 hover:text-white transition-colors py-2">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white font-bold text-xs shadow-md">
-                                            {{ mb_strtoupper(mb_substr(Auth::user()->fullname ?? Auth::user()->name ?? 'U', 0, 1, 'UTF-8'), 'UTF-8') }}
-                                        </div>
-                                        <span class="hidden sm:inline-block max-w-[120px] truncate">{{ Auth::user()->fullname ?? Auth::user()->name ?? 'User' }}</span>
-                                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:rotate-180"></i>
-                                    </button>
-                                    <div class="absolute top-[100%] right-0 h-4 w-full"></div>
-                                    <div class="absolute right-0 top-[calc(100%+0.5rem)] w-56 origin-top-right rounded-2xl border border-gray-800 bg-gray-900/95 backdrop-blur-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:translate-y-0 translate-y-2">
-                                        <div class="p-2">
-                                            <div class="px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">{{ __('ui.management') }}</div>
-                                            <a href="{{ route('account.index', ['tab' => 'profile']) }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
-                                                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-800 text-gray-400"><i class="fa-solid fa-gear"></i></div> {{ __('ui.account_settings') }}
-                                            </a>
-                                            <a href="{{ route('account.index', ['tab' => 'tickets']) }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
-                                                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-800 text-gray-400"><i class="fa-solid fa-ticket"></i></div> {{ __('ui.my_tickets') }}
-                                            </a>
-                                            @if(Auth::user()->isSystemOwner())
-                                                <a href="{{ route('admin.system-owner.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-black text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] mb-2">
-                                                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/20 text-red-500 animate-pulse"><i class="fa-solid fa-crown"></i></div> {{ __('ui.supreme_admin') }}
-                                                </a>
-                                            @endif
-                                            @if(Auth::user()->admin_role)
-                                                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-emerald-400 transition-colors">
-                                                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-800 text-gray-400"><i class="fa-solid fa-chart-line"></i></div> {{ __('ui.admin') }}
-                                                </a>
-                                            @endif
-                                            <div class="my-1.5 border-t border-gray-800"></div>
-                                            <form action="{{ route('logout') }}" method="POST" class="block m-0">
-                                                @csrf
-                                                <button type="submit" class="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">
-                                                    <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/10"><i class="fa-solid fa-right-from-bracket"></i></div> {{ __('ui.logout') }}
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endguest
-
-                        <!-- Hamburger Button: Chỉ hiện dưới xl -->
-                        <button type="button" onclick="toggleMobileMenu()" class="xl:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all">
-                            <i class="fa-solid fa-bars-staggered text-lg"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <body class="app-shell">
+    <aside class="app-sidebar">
+        <div class="brand-block">
+            <div class="brand-mark" aria-label="JGA logo">JGA</div>
         </div>
 
-        <!-- Mobile Menu Overlay -->
-        <div id="mobileMenu" class="fixed inset-0 z-[100] hidden">
-            <!-- Backdrop -->
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" onclick="toggleMobileMenu()"></div>
-            <!-- Drawer -->
-            <div class="absolute right-0 top-0 bottom-0 w-[280px] bg-[#0f172a] shadow-2xl border-l border-white/5 flex flex-col p-6 transform translate-x-full transition-transform duration-300" id="mobileMenuContent">
-                <div class="flex justify-between items-center mb-8">
-                    <div class="text-sm font-black tracking-widest text-gray-500 uppercase">Menu</div>
-                    <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
+        <nav class="side-nav" aria-label="Sidebar navigation">
+            <a href="{{ route('dashboard') }}" class="nav-item active" title="Home">
+                <i class="fa-solid fa-house"></i>
+            </a>
+            <a href="{{ route('trips.index') }}" class="nav-item" title="Trip management">
+                <i class="fa-solid fa-route"></i>
+            </a>
+            <a href="{{ route('routes.index') }}" class="nav-item" title="Routes">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </a>
+            <a href="{{ route('account.index') }}" class="nav-item" title="Account">
+                <i class="fa-solid fa-user"></i>
+            </a>
+            <a href="/feedback" class="nav-item" title="Feedback">
+                <i class="fa-solid fa-message"></i>
+            </a>
+        </nav>
 
-                <div class="mb-5 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/5 p-1 text-center text-xs font-bold">
-                    <a href="{{ route('language.switch', 'vi') }}" class="rounded-xl px-3 py-2 {{ app()->getLocale() === 'vi' ? 'bg-red-600 text-white' : 'text-gray-400' }}">VI</a>
-                    <a href="{{ route('language.switch', 'en') }}" class="rounded-xl px-3 py-2 {{ app()->getLocale() === 'en' ? 'bg-red-600 text-white' : 'text-gray-400' }}">EN</a>
-                </div>
-
-                <nav class="flex flex-col gap-2">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                        <i class="fa-solid fa-house w-5"></i> <span class="font-bold">{{ __('ui.home') }}</span>
-                    </a>
-                    <a href="{{ route('trips.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                        <i class="fa-solid fa-film w-5"></i> <span class="font-bold">{{ __('ui.movies_schedule') }}</span>
-                    </a>
-                    <a href="{{ route('routes.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                        <i class="fa-solid fa-location-dot w-5"></i> <span class="font-bold">{{ __('ui.cinemas') }}</span>
-                    </a>
-                    <a href="/feedback" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                        <i class="fa-solid fa-headset w-5"></i> <span class="font-bold">{{ __('ui.feedback') }}</span>
-                    </a>
-                </nav>
-
-                <!-- Mobile Search -->
-                <div class="mt-8 pt-8 border-t border-white/5">
-                    <form action="{{ route('trips.index') }}" method="GET" class="relative">
-                        <input type="text" name="q" placeholder="{{ __('ui.search_placeholder') }}" 
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
-                        <button type="submit" class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-gray-500" aria-label="Tìm kiếm">
-                            <i class="fa-solid fa-search"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
+        <div class="sidebar-status">
+            <div class="status-dot"></div>
         </div>
-    </nav>
+    </aside>
 
-    <!-- Main Content -->
-    <main class="flex-grow">
-        @yield('content')
-    </main>
+    <div class="app-main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="app-chip">Sync complete</div>
+                <h1>Quản Lý Lộ Trình KTV JGA</h1>
+            </div>
+
+            <div class="topbar-actions">
+                <button type="button" class="ghost-btn">Cancel</button>
+                <button type="button" class="primary-btn">Save</button>
+            </div>
+        </header>
+
+        <main class="content-shell">
+            @yield('content')
+        </main>
+    </div>
 
     <!-- Review Modal Global -->
     <div id="reviewModal"
@@ -405,7 +276,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <a href="/" class="flex items-center text-red-500 font-bold text-2xl tracking-tighter mb-4">
-                        <i class="fa-solid fa-film mr-2 text-red-600"></i> Cine<span class="text-white">Book</span>
+                        <i class="fa-solid fa-film mr-2 text-red-600"></i> Appshet<span class="text-white">JGA</span>
                     </a>
                     <p class="text-sm text-gray-400 leading-relaxed mb-4">
                         {{ __('ui.footer_desc') }}
@@ -418,7 +289,7 @@
                 </div>
 
                 <div>
-                    <h3 class="text-white font-semibold mb-4 uppercase text-sm tracking-wider">CineBook</h3>
+                    <h3 class="text-white font-semibold mb-4 uppercase text-sm tracking-wider">AppshetJGA</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="#" class="hover:text-red-500 transition-colors">{{ __('ui.about_us') }}</a></li>
                         <li><a href="#" class="hover:text-red-500 transition-colors">{{ __('ui.news') }}</a></li>
@@ -457,7 +328,7 @@
             </div>
 
             <div class="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-500">
-                &copy; {{ date('Y') }} CineBook. All rights reserved.
+                &copy; {{ date('Y') }} AppshetJGA. All rights reserved.
             </div>
         </div>
     </footer>

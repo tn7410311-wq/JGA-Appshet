@@ -205,7 +205,7 @@
                             <i class="fa-solid fa-film"></i>
                         </a>
                         <div class="min-w-0">
-                            <div class="hidden text-xs font-semibold uppercase tracking-[0.24em] text-gray-500 sm:block">CineBook Admin</div>
+                            <div class="hidden text-xs font-semibold uppercase tracking-[0.24em] text-gray-500 sm:block">JGA Admin</div>
                             <h1 class="truncate text-base font-extrabold tracking-tight text-white sm:text-xl">@yield('page-title', 'Dashboard')</h1>
                         </div>
                     </div>

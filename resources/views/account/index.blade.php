@@ -1,41 +1,41 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gray-950 pb-20 text-white">
-    <section class="border-b border-gray-800 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.16),transparent_28%),linear-gradient(180deg,#111827_0%,#030712_100%)]">
-        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            <div class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+<div>
+    <section>
+        <div>
+            <div>
                 <div>
-                    <div class="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-red-300">
-                        <i class="fa-solid fa-id-card"></i>
+                    <div>
+                        <i"></i>
                         CineBook Account
                     </div>
-                    <h1 class="mt-5 text-4xl font-extrabold tracking-tight text-white md:text-5xl">Tài khoản của tôi</h1>
-                    <p class="mt-4 max-w-2xl text-sm leading-7 text-gray-400 md:text-base">
+                    <h1>Tài khoản của tôi</h1>
+                    <p>
                         Theo dõi vé đã mua, voucher đang có thể dùng và lịch sử ưu đãi ngay trong một màn hình. Mục này được làm để user tự kiểm tra trạng thái giao dịch mà không cần hỏi admin.
                     </p>
                 </div>
 
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="rounded-[1.75rem] border border-gray-800 bg-gray-900/80 p-5 shadow-lg shadow-black/10">
-                        <div class="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">Vé đã mua</div>
-                        <div class="mt-3 text-3xl font-extrabold text-white">{{ $accountStats['ticket_count'] }}</div>
-                        <div class="mt-2 text-sm text-gray-400">Lịch sử booking của bạn trên hệ thống.</div>
+                <div>
+                    <div>
+                        <div>Vé đã mua</div>
+                        <div>{{ $accountStats['ticket_count'] }}</div>
+                        <div>Lịch sử booking của bạn trên hệ thống.</div>
                     </div>
-                    <div class="rounded-[1.75rem] border border-gray-800 bg-gray-900/80 p-5 shadow-lg shadow-black/10">
-                        <div class="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">Tổng chi</div>
-                        <div class="mt-3 text-3xl font-extrabold text-white">{{ number_format((float) $accountStats['ticket_spent'], 0, ',', '.') }}đ</div>
-                        <div class="mt-2 text-sm text-gray-400">Tính theo tổng tiền cuối cùng sau giảm giá.</div>
+                    <div>
+                        <div>Tổng chi</div>
+                        <div>{{ number_format((float) $accountStats['ticket_spent'], 0, ',', '.') }}đ</div>
+                        <div>Tính theo tổng tiền cuối cùng sau giảm giá.</div>
                     </div>
-                    <div class="rounded-[1.75rem] border border-gray-800 bg-gray-900/80 p-5 shadow-lg shadow-black/10">
-                        <div class="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">Voucher khả dụng</div>
-                        <div class="mt-3 text-3xl font-extrabold text-white">{{ $accountStats['available_vouchers'] }}</div>
-                        <div class="mt-2 text-sm text-gray-400">Các voucher đang mở và chưa hết điều kiện sử dụng.</div>
+                    <div>
+                        <div>Voucher khả dụng</div>
+                        <div>{{ $accountStats['available_vouchers'] }}</div>
+                        <div>Các voucher đang mở và chưa hết điều kiện sử dụng.</div>
                     </div>
-                    <div class="rounded-[1.75rem] border border-gray-800 bg-gray-900/80 p-5 shadow-lg shadow-black/10">
-                        <div class="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">Đã dùng voucher</div>
-                        <div class="mt-3 text-3xl font-extrabold text-white">{{ $accountStats['used_vouchers'] }}</div>
-                        <div class="mt-2 text-sm text-gray-400">Số lần ưu đãi đã được áp vào vé của bạn.</div>
+                    <div>
+                        <div>Đã dùng voucher</div>
+                        <div>{{ $accountStats['used_vouchers'] }}</div>
+                        <div>Số lần ưu đãi đã được áp vào vé của bạn.</div>
                     </div>
                 </div>
             </div>
