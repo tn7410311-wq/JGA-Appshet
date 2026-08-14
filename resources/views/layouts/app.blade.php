@@ -29,10 +29,9 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Favicon: use SVG generated from navbar icon for crisp result -->
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <!-- fallback -->
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('/images/favicon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}" />
 </head>
 
     <body class="app-shell">
