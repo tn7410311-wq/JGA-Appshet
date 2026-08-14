@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin') - {{ config('app.name', 'CineBook') }}</title>
+    <title>@yield('title', 'Admin') - {{ config('app.name', 'AppshetJGA') }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800" rel="stylesheet" />
@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <div class="text-[11px] uppercase tracking-[0.28em] text-gray-500">{{ __('ui.admin_panel') }}</div>
-                        <div class="text-2xl font-extrabold tracking-tight text-red-500">Cine<span class="text-white">Book</span></div>
+                        <div class="text-2xl font-extrabold tracking-tight text-red-500">Appshet<span class="text-white">JGA</span></div>
                     </div>
                 </a>
             </div>

@@ -51,9 +51,9 @@
 
                     <!-- Desktop Menu: Chỉ hiện trên màn hình lớn (xl) để tránh chật chội -->
                     <div class="hidden xl:flex items-center space-x-8">
-                        <a href="/" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.home') }}</a>
-                        <a href="/movies" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.movies_schedule') }}</a>
-                        <a href="{{ route('cinemas.index') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.cinemas') }}</a>
+                        <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.home') }}</a>
+                        <a href="{{ route('trips.index') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.movies_schedule') }}</a>
+                        <a href="{{ route('routes.index') }}" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.cinemas') }}</a>
                         <a href="/feedback" class="text-gray-400 hover:text-white text-sm font-bold transition-colors">{{ __('ui.feedback') }}</a>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                 <div class="flex shrink-0 items-center gap-2 md:gap-4 lg:gap-6">
                     <!-- Search Bar: Ẩn trên mobile, hiện từ md -->
                     <div class="hidden md:block relative group">
-                        <form action="{{ route('movies.index') }}" method="GET" class="relative">
+                        <form action="{{ route('trips.index') }}" method="GET" class="relative">
                             <input type="text" name="q" id="globalSearchInput" placeholder="{{ __('ui.search_placeholder') }}" 
                                 class="h-11 bg-white/5 border border-white/10 rounded-full pl-5 pr-12 text-sm text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 w-44 lg:w-64 transition-all placeholder:text-gray-500 group-hover:bg-white/10">
                             <button type="submit" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-full text-gray-500 transition-colors hover:text-white" aria-label="Tìm kiếm">
@@ -178,13 +178,13 @@
                 </div>
 
                 <nav class="flex flex-col gap-2">
-                    <a href="/" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
                         <i class="fa-solid fa-house w-5"></i> <span class="font-bold">{{ __('ui.home') }}</span>
                     </a>
-                    <a href="/movies" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
+                    <a href="{{ route('trips.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
                         <i class="fa-solid fa-film w-5"></i> <span class="font-bold">{{ __('ui.movies_schedule') }}</span>
                     </a>
-                    <a href="{{ route('cinemas.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
+                    <a href="{{ route('routes.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
                         <i class="fa-solid fa-location-dot w-5"></i> <span class="font-bold">{{ __('ui.cinemas') }}</span>
                     </a>
                     <a href="/feedback" class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all">
@@ -194,7 +194,7 @@
 
                 <!-- Mobile Search -->
                 <div class="mt-8 pt-8 border-t border-white/5">
-                    <form action="{{ route('movies.index') }}" method="GET" class="relative">
+                    <form action="{{ route('trips.index') }}" method="GET" class="relative">
                         <input type="text" name="q" placeholder="{{ __('ui.search_placeholder') }}" 
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
                         <button type="submit" class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-gray-500" aria-label="Tìm kiếm">

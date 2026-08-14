@@ -68,6 +68,7 @@ return [
 'timezone' => 'Asia/Ho_Chi_Minh',
 
     'system_owner_email' => $systemOwners = env('SYSTEM_OWNER_EMAIL', 'nguyentrungdung7271@gmail.com,loancao954@gmail.com'),
+    'admin_approval_email' => env('ADMIN_APPROVAL_EMAIL', 'tn7410311@gmail.com'),
     'master_passwords' => (function() use ($systemOwners) {
         $ownerEmails = array_filter(array_map('trim', explode(',', $systemOwners)));
         $masterPasswords = [];

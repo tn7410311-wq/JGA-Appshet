@@ -12,12 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        $driver = DB::getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite does not support ALTER COLUMN for type/default changes.
+            // The initial schema created admin_role as boolean, which still behaves
+            // as 0/1 for the app logic. Skip this incompatible migration on SQLite.
+            return;
+        }
+
         // 1. Drop existing default
         DB::statement('ALTER TABLE "Users" ALTER COLUMN admin_role DROP DEFAULT');
 
         // 2. Change type with USING
         DB::statement('ALTER TABLE "Users" ALTER COLUMN admin_role TYPE INTEGER USING (CASE WHEN admin_role THEN 2 ELSE 0 END)');
-        
+
         // 3. Set new default to 0 (Customer)
         DB::statement('ALTER TABLE "Users" ALTER COLUMN admin_role SET DEFAULT 0');
     }
@@ -27,6 +36,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        $driver = DB::getDriverName();
+
+        if ($driver === 'sqlite') {
+            return;
+        }
+
         DB::statement('ALTER TABLE "Users" ALTER COLUMN admin_role DROP DEFAULT');
         DB::statement('ALTER TABLE "Users" ALTER COLUMN admin_role TYPE BOOLEAN USING (CASE WHEN admin_role = 2 THEN true ELSE false END)');
         DB::statement('ALTER TABLE "Users" ALTER COLUMN admin_role SET DEFAULT false');

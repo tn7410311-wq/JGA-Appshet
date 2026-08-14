@@ -2,87 +2,82 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\UserApprovalMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::query()
-            ->addSelect([
-                'total_spent' => DB::table('tickets')
-                    ->whereColumn('user_id', 'Users.id')
-                    ->selectRaw('COALESCE(SUM(total_price), 0)'),
-                'favorite_genre' => DB::table('tickets')
-                    ->join('showtimes', 'tickets.showtime_id', '=', 'showtimes.id')
-                    ->join('movies', 'showtimes.movie_id', '=', 'movies.id')
-                    ->whereColumn('tickets.user_id', 'Users.id')
-                    ->whereNotNull('movies.genre')
-                    ->select('movies.genre')
-                    ->groupBy('movies.genre')
-                    ->orderByRaw('COUNT(*) DESC')
-                    ->limit(1),
-                'favorite_hour' => DB::table('tickets')
-                    ->join('showtimes', 'tickets.showtime_id', '=', 'showtimes.id')
-                    ->whereColumn('tickets.user_id', 'Users.id')
-                    ->selectRaw('EXTRACT(HOUR FROM showtimes.start_time)')
-                    ->groupByRaw('EXTRACT(HOUR FROM showtimes.start_time)')
-                    ->orderByRaw('COUNT(*) DESC')
-                    ->limit(1),
-            ])
-            ->paginate(10);
+        $users = User::paginate(20);
+        return view('admin.users.index', compact('users'));
+    }
 
-        $users->getCollection()->transform(function ($user) {
-            // Format favorite time label
-            if ($user->favorite_hour !== null) {
-                $h = (int) $user->favorite_hour;
-                if ($h >= 5 && $h < 12) {
-                    $user->favorite_time = 'Sáng (' . sprintf('%02d:00', $h) . ')';
-                } elseif ($h >= 12 && $h < 18) {
-                    $user->favorite_time = 'Chiều (' . sprintf('%02d:00', $h) . ')';
-                } else {
-                    $user->favorite_time = 'Tối (' . sprintf('%02d:00', $h) . ')';
-                }
-            } else {
-                $user->favorite_time = 'Chưa có dữ liệu';
-            }
+    public function show(User $user)
+    {
+        return view('admin.users.show', compact('user'));
+    }
 
-            $user->favorite_genre = $user->favorite_genre ?? 'Chưa có dữ liệu';
-            
-            return $user;
-        });
-
-        return view('admin.users.index', [
-            'users' => $users,
-            'activeTab' => 'management',
-            'pageTitle' => 'Quản lý Khách Hàng'
-        ]);
+    public function edit(User $user)
+    {
+        return view('admin.users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
-        $actor = auth()->user();
-
-        if (! $actor?->isAdmin()) {
-            return redirect()->route('admin.users.index')->with('error', 'Bạn không có quyền thực hiện hành động này!');
-        }
-
-        $request->validate([
-            'admin_role' => 'required|integer|in:0,1,2,3',
+        $validated = $request->validate([
+            'fullname' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        $newRole = (int) $request->input('admin_role');
+        $user->update($validated);
+        return redirect()->route('admin.users.show', $user)->with('success', 'User updated');
+    }
 
-        if (! $actor->isSystemOwner() && $newRole > User::ROLE_CLIENT) {
-            return redirect()->route('admin.users.index')->with('error', 'Chỉ Super Admin mới được cấp quyền Admin hoặc Super Admin.');
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->route('admin.users.index')->with('success', 'User deleted');
+    }
+
+    public function approvalPanel()
+    {
+        $pendingUsers = User::where('is_approved', false)->paginate(10);
+        $approvedUsers = User::where('is_approved', true)->paginate(10);
+        
+        return view('admin.users.approval-panel', compact('pendingUsers', 'approvedUsers'));
+    }
+
+    public function approve(User $user)
+    {
+        $user->update([
+            'is_approved' => true,
+            'approved_at' => now(),
+            'approved_by' => Auth::id(),
+        ]);
+
+        try {
+            Mail::to($user->email)->send(new UserApprovalMail($user));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Approval email error: ' . $e->getMessage());
         }
 
-        $user->admin_role = $newRole;
-        $user->save();
+        return back()->with('success', 'User approved and notified');
+    }
 
-        return redirect()->route('admin.users.index')->with('success', 'Đã cập nhật quyền truy cập cho ' . ($user->name ?? $user->username ?? 'người dùng'));
+    public function reject(User $user, Request $request)
+    {
+        $request->validate(['rejection_reason' => 'required|string|max:500']);
+
+        $user->update([
+            'is_approved' => false,
+            'rejection_reason' => $request->rejection_reason,
+        ]);
+
+        return back()->with('success', 'User rejected');
     }
 }

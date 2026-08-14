@@ -32,6 +32,10 @@ class User extends Authenticatable
         'google_id',
         'admin_role',
         'email_verified_at',
+        'is_approved',
+        'approved_at',
+        'approved_by',
+        'rejection_reason',
         'created_at',
         'updated_at',
     ];
@@ -52,12 +56,15 @@ class User extends Authenticatable
             'admin_role' => 'integer',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_approved' => 'boolean',
+            'approved_at' => 'datetime',
         ];
     }
 
     /**
      * Grace: Helper kiểm tra quyền hạn
      */
+    public function isApproved(): bool { return (bool)($this->is_approved ?? false); }
     public function isGuest(): bool { return (int)($this->admin_role ?? self::ROLE_GUEST) === self::ROLE_GUEST; }
     public function isClient(): bool { return (int)($this->admin_role ?? self::ROLE_GUEST) === self::ROLE_CLIENT; }
     public function isCustomer(): bool { return $this->isClient(); }

@@ -86,9 +86,20 @@ class AuthController extends Controller
     }
 
     // Xử lý dữ liệu Google trả về
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
         try {
+            if (!$request->has('code') || empty($request->input('code'))) {
+                \Log::warning('Google callback received without code parameter.', [
+                    'query' => $request->query->all(),
+                    'full_url' => $request->fullUrl(),
+                ]);
+
+                return redirect()->route('login')->withErrors([
+                    'google_error' => 'Google Login bị hủy hoặc redirect không hợp lệ. Vui lòng thử lại.'
+                ]);
+            }
+
             // GRACE: Dung stateless de bo qua kiem tra session state (rat de loi tren local)
             $googleUser = Socialite::driver('google')->stateless()->user();
             
@@ -213,6 +224,15 @@ class AuthController extends Controller
             $request->session()->regenerate();
             /** @var User $user */
             $user = Auth::user();
+            
+            // Check if user is approved
+            if (!$user->isApproved() && !$user->isSystemOwner() && !$user->isAdmin()) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Tài khoản của bạn chưa được duyệt. Vui lòng chờ quản trị viên phê duyệt hoặc liên hệ admin: tn7410311@gmail.com',
+                ])->onlyInput('email');
+            }
+            
             return redirect()->to($this->redirectAfterLogin($user))->with('success', 'Đăng nhập thành công.');
         }
 

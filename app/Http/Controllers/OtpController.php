@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Mail\UserApprovalRequestMail;
 
 class OtpController extends Controller
 {
@@ -32,7 +33,7 @@ class OtpController extends Controller
         // Bắn email giao diện HTML xịn xò
         try {
             Mail::send('emails.otp', ['otp' => $newOtpCode, 'userName' => $userData['fullname']], function ($message) use ($email) {
-                $message->to($email)->subject('🔒 [CINEBOOK] Mã Xác Thực OTP Của Bạn');
+                $message->to($email)->subject('🔒 [APPSHET-JGA] Mã Xác Thực OTP Của Bạn');
             });
         } catch (\Exception $e) {
             // bỏ qua lỗi mail
@@ -89,23 +90,33 @@ class OtpController extends Controller
                  return redirect()->route('login')->with('error', 'Email này đã được đăng ký thành công trước đó.');
             }
 
+            // Create user with is_approved = false for admin approval workflow
             $user = User::create([
                 'fullname' => $userData['fullname'],
                 'email' => $userData['email'],
                 'phone' => $userData['phone'],
                 'password' => $userData['password'],
                 'admin_role' => $userData['admin_role'] ?? false,
+                'is_approved' => false, // Require admin approval
             ]);
+
+            // Send approval request email to admin
+            try {
+                $adminEmail = config('app.admin_approval_email', 'tn7410311@gmail.com');
+                Mail::to($adminEmail)->send(new UserApprovalRequestMail($user));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send approval email: ' . $e->getMessage());
+            }
 
             Cache::forget('register_data_' . $email);
             Session::forget('verify_email');
 
-            Auth::login($user);
-
-            return redirect()->to($user->admin_role ? route('admin.dashboard') : route('home'))
-                ->with('success', 'Đăng ký và xác thực thành công! Chào mừng bạn đến với CineBook (◕‿-)v');
+            // Don't auto-login - show approval pending message
+            return redirect()->route('registration-pending')
+                ->with('success', 'Đăng ký thành công! Tài khoản của bạn đang chờ phê duyệt từ quản trị viên. Vui lòng chờ email xác nhận hoặc liên hệ: tn7410311@gmail.com');
         }
 
         return back()->with('error', 'Mã OTP không chính xác. Vui lòng kiểm tra lại.');
     }
 }
+
